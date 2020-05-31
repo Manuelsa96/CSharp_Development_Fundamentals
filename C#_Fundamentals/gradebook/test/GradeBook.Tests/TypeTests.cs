@@ -1,23 +1,51 @@
 using System;
 using Xunit;
-
+ 
 namespace GradeBook.Tests
 {    
+
+    public delegate string WriteLogDelegate(string logMessage);
+
     public class TypeTests
     {    
+        int count = 0;
 
         [Fact]
-        public void Test1()
+        public void WriteLogDelegateCanPointToMethod()
         {
-            var x = GetInt();
-            SetInt(x);
+            WriteLogDelegate log = ReturnMessage;
+            log += ReturnMessage;
+            log += IncrementCount;
 
-            Assert.Equal(3, x);
+            var result = log("Hello!");
+            Assert.Equal(3, count);
         }
 
-        private void SetInt(int x)
+        string IncrementCount(string message) 
         {
-            x = 42;
+            count++;
+            return message.ToLower();
+        }
+
+        string ReturnMessage(string message) 
+        {
+            count++;
+            return message;
+        }
+
+
+        [Fact]
+        public void ValueTypesAlsoPassByValue()
+        {
+            var x = GetInt();
+            SetInt(ref x);
+
+            Assert.Equal(42, x);
+        }
+
+        private void SetInt(ref Int32 z)
+        {
+            z = 42;
         }
 
         private int GetInt()
@@ -65,6 +93,21 @@ namespace GradeBook.Tests
         private void SetName(Book book, string name)
         {
             book.Name = name;
+        }
+
+        [Fact]
+        public void StringsBehaveLikeValueTypes()
+        {
+            string name = "Scott";
+            var upper = MakeUppercase(name);
+
+            Assert.Equal("Scott", name);
+            Assert.Equal("SCOTT", upper);
+        }
+
+        private string MakeUppercase(string parameter)
+        {
+            return parameter.ToUpper();
         }
 
         [Fact]
